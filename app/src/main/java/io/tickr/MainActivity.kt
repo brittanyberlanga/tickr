@@ -12,20 +12,21 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private val symbolsAdapter: SymbolsAdapter = SymbolsAdapter()
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        symbolsRecyclerView.adapter = symbolsAdapter
+
         val referenceDataService = ServiceProvider.createService(ReferenceDataService::class.java)
 
         referenceDataService.getSymbols()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ symbols ->
-                text.text = symbols.size.toString()
-            }, { it.printStackTrace() })
+            .subscribe({ symbolsAdapter.symbolsList = it }, { it.printStackTrace() })
             .addTo(compositeDisposable)
 
     }
